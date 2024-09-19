@@ -10,6 +10,26 @@ namespace ExtendedPathfinding
 {
     public static class Utilities
     {
+        public static void DrawExtendedPath(ExtendedPath extendedPath, Vector3 scale)
+        {
+            List<(Vector3, Color)> pointInfos = extendedPath.GetPositionsWithColor();
+            if (pointInfos.Count <= 1) return;
+            Gizmos.DrawLine(extendedPath.SourcePoint.InterestObject.transform.position, pointInfos.First().Item1);
+            for (int i = 0; i < pointInfos.Count; i++)
+            {
+                Gizmos.color = pointInfos[i].Item2;
+                Gizmos.DrawCube(pointInfos[i].Item1, scale);
+                if (i != 0)
+                {
+                    if (pointInfos[i - 1].Item2 != pointInfos[i].Item2)
+                        Gizmos.color = Color.white;
+                    Gizmos.DrawLine(pointInfos[i - 1].Item1, pointInfos[i].Item1);
+                }
+            }
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(pointInfos.Last().Item1, extendedPath.TargetPoint.InterestObject.transform.position);
+        }
+
         public static void DrawNavmeshPath(NavMeshPath navMeshPath, Vector3 scale)
         {
             DrawPoints(navMeshPath.corners, scale);
@@ -63,6 +83,16 @@ namespace ExtendedPathfinding
             if (Physics.Raycast(position, Vector3.down, out RaycastHit raycastHit, Mathf.Infinity, ~0, QueryTriggerInteraction.Ignore))
                 return (raycastHit.point);
             return (position);
+        }
+
+        public static Vector3 GetAveragePosition(List<Vector3> positions)
+        {
+            if (positions == null || positions.Count == 0)
+                return Vector3.zero;
+            Vector3 meanVector = Vector3.zero;
+            foreach (Vector3 pos in positions)
+                meanVector += pos;
+            return meanVector / positions.Count;
         }
     }
 }
